@@ -7,7 +7,7 @@ import struct
 import smtplib
 from socket import gethostname
 from functools import wraps
-from threading import Event, Thread, current_thread, Lock, RLock
+from threading import Event, Thread, current_thread, Lock, RLock, _MainThread
 from Queue import Queue
 from collections import namedtuple, Mapping, Iterable
 from contextlib import contextmanager
@@ -1009,7 +1009,8 @@ class Fei4RunBase(RunBase):
             except Exception:
                 # in case something fails, call this on last resort
                 self._current_module_handle = None
-                current_thread().name = "MainThread"
+                if isinstance(current_thread(), _MainThread):
+                    current_thread().name = "MainThread"
 
     def select_module(self, module_id):
         ''' Select module and give access to the module.
@@ -1085,7 +1086,8 @@ class Fei4RunBase(RunBase):
         self._converter = []
         self.dut['TX']['OUTPUT_ENABLE'] = 0
         self._current_module_handle = None
-        current_thread().name = "MainThread"
+        if isinstance(current_thread(), _MainThread):
+            current_thread().name = "MainThread"
 
     @contextmanager
     def access_files(self):
